@@ -4,6 +4,11 @@ version = "0.1.0"
 description = "XXX"
 authors = ["TropicalAlgae <tropicalalgae@google.com>"]
 
+[[tool.poetry.source]]
+name = "primary-repo"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "primary"
+
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -29,6 +34,7 @@ py2neo = "^2021.2.4"
 llama-index-embeddings-openai = "^0.3.1"
 llama-index-vector-stores-milvus = "^0.5.0"
 langdetect = "^1.0.9"
+datasets = "^3.3.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2"

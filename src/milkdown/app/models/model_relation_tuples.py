@@ -5,8 +5,8 @@ class RelationTuples(BaseModel):
     subject: str
     relation: str
     object: str
-    sentence: str
-    sentence_index: int
+    sentence: str = ""
+    sentence_index: int = -1
 
 
 class EntityModel(BaseModel):

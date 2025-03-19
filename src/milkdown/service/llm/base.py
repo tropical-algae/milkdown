@@ -82,7 +82,7 @@ class OpenAIBase:
     #     response = completion.choices[0].message.content
     #     return response or "None"
 
-    async def _async_inference(self, content: str | list, model: Optional[str] = None, **kwargs) -> str:
+    async def _async_inference(self, content: Any, model: Optional[str] = None, **kwargs) -> str:
         assert isinstance(content, str) or isinstance(content, list), f"Illegal LLM input type: {type(content)}"
 
         model = model or self.default_model
@@ -91,7 +91,7 @@ class OpenAIBase:
         if isinstance(content, list):
             messages=content
 
-        completion = await self.async_client.chat.completions.create(messages=messages, model=model, **kwargs)
+        completion = await self.async_client.chat.completions.create(messages=messages, model=model, temperature=0.4, **kwargs)
 
         response = completion.choices[-1].message.content
         return response or "None"

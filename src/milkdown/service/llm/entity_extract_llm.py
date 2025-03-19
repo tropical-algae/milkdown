@@ -12,8 +12,8 @@ from milkdown.service.llm.base import OpenAIBase
 from openai.types.chat import ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam
 
 
-class RelationExtractor(OpenAIBase):
-    __model_tag__ = "knowledge_relation_exrtactor"
+class EntityExtractor(OpenAIBase):
+    __model_tag__ = "entity_extractor"
 
     def __init__(
         self,
@@ -48,9 +48,11 @@ class RelationExtractor(OpenAIBase):
         self, 
         content: Any, 
         model: Optional[str] = None, 
-        **kwargs
+        **kwargs  # type: ignore
     ) -> list:
-        results: list = []
+        assert isinstance(content, dict)
+        
+        result: list[str] = []
         retry = 0
         messgae = [
             ChatCompletionAssistantMessageParam(
@@ -63,32 +65,26 @@ class RelationExtractor(OpenAIBase):
             )
         ]
 
-        while len(results) == 0 and retry <= self.retry:
+        while len(result) == 0 and retry <= self.retry:
             if retry > 0:
                 logger.warning(f"Retry[{retry}/{self.retry}] content: {content}")
             retry += 1
             output = await super()._async_inference(content=messgae, model=model)
             try:
-                results: list = ast.literal_eval(output)
-                # for result in results:
-                #     result["sentence"] = content
-                #     result["sentence_index"] = kwargs.get("index", -1)
+                result: list[str] = ast.literal_eval(output)
                 break
             except Exception as err:
                 logger.error(f"{err}. Failed to evaluate output: {output}")
-        return results
+        return result
 
     async def run(
         self, 
-        sentence: str,
-        entities: list[str],
-        relation_types: list[str] | None = None,
+        sentence: str, 
         model: Optional[str] = None, 
         **kwargs
     ) -> list[RelationTuples]:
-
         # logger.info(f"Loading prompt for input: {str(content)}")
-        # sentences: list[str] = sentence_separate(paragraph)
+        
         # contents: list[tuple] = [(index, sentence) for index, sentence in enumerate(sentences)]
 
         # tasks = [
@@ -100,15 +96,9 @@ class RelationExtractor(OpenAIBase):
         #     )
         #     for index, content in contents
         # ]
-        input = {
-            "text": sentence,
-            "entities": ", ".join(entities),
-            "relations": ", ".join(relation_types or [])
-        }
-        result = await self._async_inference(content=input, model=model, **kwargs)
+        input = {"text": sentence}
         # outptus = await asyncio.gather(*tasks)
         # results = list(chain.from_iterable(outptus))
-        # results = [self._clean_dirty_data(result) for result in results]
-
-        logger.info(f"Capture relations: {result}")
-        return [RelationTuples.model_validate(r) for r in result]
+        result = await self._async_inference(content=input, model=model, **kwargs)
+        logger.info(f"Capture entities: {result}")
+        return result # [EntityModel.model_validate(r) for r in result]

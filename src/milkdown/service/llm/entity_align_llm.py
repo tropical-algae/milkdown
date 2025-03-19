@@ -2,7 +2,7 @@ import ast
 import asyncio
 from itertools import chain
 import os
-from typing import Optional
+from typing import Any, Optional
 
 from milkdown.common.logging import logger
 from milkdown.service.llm.base import OpenAIBase
@@ -30,7 +30,7 @@ class EntityAligner(OpenAIBase):
         )
         self.retry = retry
 
-    async def _async_inference(self, content: str | list, model: Optional[str] = None, **kwargs) -> dict[str, list]:
+    async def _async_inference(self, content: Any, model: Optional[str] = None, **kwargs) -> dict[str, list]:
         result: dict = {}
         retry = 0
         while len(result) == 0 and retry <= self.retry:
